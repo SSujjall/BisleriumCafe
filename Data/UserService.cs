@@ -7,22 +7,22 @@ namespace BisleriumCafe.Data
         public const string seedUsername = "admin";
         public const string seedPassword = "admin";
 
-        private static void SaveUser(List<User> users)
+        private static void SaveUserInfo(List<User> users)
         {
-            string appDataDirectory = Utils.GetAppDirectoryPath();
-            string userFilePath = Utils.GetUsersFilePath();
+            string appDataPath = Utils.GetAppDirectory();
+            string userFilePath = Utils.GetUsersPath();
 
-            if (!Directory.Exists(appDataDirectory))
+            if (!Directory.Exists(appDataPath))
             {
-                Directory.CreateDirectory(appDataDirectory);
+                Directory.CreateDirectory(appDataPath);
             }
             var json = JsonSerializer.Serialize(users);
             File.WriteAllText(userFilePath, json);
         }
 
-        public static List<User> GetUser()
+        public static List<User> GetUserInfo()
         {
-            string userFilePath = Utils.GetUsersFilePath();
+            string userFilePath = Utils.GetUsersPath();
 
             if (!File.Exists(userFilePath))
             {
@@ -35,28 +35,28 @@ namespace BisleriumCafe.Data
 
         public static List<User> CreateUser(Guid userId, string username, string password, Role role)
         {
-            List<User> users = GetUser();
-            bool usernameExists = users.Any(x => x.Username == username);
+            List<User> users = GetUserInfo();
+            bool usernameExist = users.Any(x => x.Username == username);
 
-            if (usernameExists)
+            if (usernameExist)
             {
-                throw new Exception("This username already exists!");
+                throw new Exception("This user name is used!");
             }
             users.Add(
                 new User
                 {
                     Username = username,
-                    PasswordHash = Utils.HashSecret(password),
+                    PasswordHash = Utils.HashSecretKey(password),
                     Role = role
                 }
                 );
-            SaveUser(users);
+            SaveUserInfo(users);
             return users;
         }
 
         public static void SeedUsers()
         {
-            var users = GetUser().FirstOrDefault(x => x.Role == Role.Admin);
+            var users = GetUserInfo().FirstOrDefault(x => x.Role == Role.Admin);
 
             if (users == null)
             {
@@ -66,31 +66,31 @@ namespace BisleriumCafe.Data
 
         public static List<User> DeleteUser(Guid ID)
         {
-            List<User> users = GetUser();
-            User user = users.FirstOrDefault(x => x.Id == ID);
+            List<User> users = GetUserInfo();
+            User user = users.FirstOrDefault(x => x.UserID == ID);
             if (user == null)
             {
-                throw new Exception("No users to delete!");
+                throw new Exception("Null Users!");
             }
             users.Remove(user);
-            SaveUser(users);
+            SaveUserInfo(users);
             return users;
 
         }
 
-        public static User LogIn(string username, string password)
+        public static User Login(string username, string password)
         {
-            List<User> users = GetUser();
+            List<User> users = GetUserInfo();
             User user = users.FirstOrDefault(x => x.Username == username);
-            var errorDialog = "Invalid username or password";
+            var errorMessage = "Invalid Credentials!";
             if (user == null)
             {
-                throw new Exception(errorDialog);
+                throw new Exception(errorMessage);
             }
-            bool pwMatched = Utils.VerifyHash(password, user.PasswordHash);
+            bool pwMatched = Utils.HashVerification(password, user.PasswordHash);
             if (!pwMatched)
             {
-                throw new Exception(errorDialog);
+                throw new Exception(errorMessage);
             }
             return user;
 

@@ -3,12 +3,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-..." crossorigin="anonymous">
 <link href="https://cdn.jsdelivr.net/npm/open-iconic@1.1.1/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
 
+<!-- Navbar on the side -->
 <nav class="navbar navbar-light justify-content-between">
-    <h1 class="navbar-brand mb-0 h1">Users</h1>
+    <h1 class="navbar-brand mb-0 h1">User List</h1>
+
     <button class="btn btn-success" type="button" @onclick="OpenAddUserDialog">
         <span class="oi oi-plus"></span> Add
     </button>
 </nav>
+
+<!-- Table for created users -->
 <table class="table table-bordered table-hover">
     <thead class="thead-light">
         <tr>
@@ -18,13 +22,14 @@
         </tr>
     </thead>
     <tbody>
+        <!-- Loop for adding users in row -->
         @foreach (var user in _users)
         {
             <tr>
                 <td>@user.Username</td>
                 <td>@user.Role.ToString()</td>
                 <td>
-                    <button disabled="@(_globalState.CurrentUser != null ? _globalState.CurrentUser.Id == user.Id : false)"
+                    <button disabled="@(_globalState?.ActiveUser != null ? _globalState.ActiveUser.UserID == user.UserID : false)"
                             class="btn btn-sm btn-outline-danger" @onclick="()=>OpenDeleteUserDialog(user)">
                         <i class="fas fa-trash-alt"></i>
                     </button>
@@ -34,6 +39,7 @@
     </tbody>
 </table>
 
+@* Adding user dialog box with inputs *@
 @if (_showAddUserDialog)
 {
     <ModalDialog Title="Add Users" OnClose="@OnAddUserDialogClose" OkLabel="Add">
@@ -42,28 +48,33 @@
             <input type="text" class="form-control username" @bind="_username" placeholder="Username" />
             <label for="floatingInput">Username</label>
         </div>
+
         <div class="form-floating mb-3">
             <input type="password" class="form-control password" @bind="_password" placeholder="Password" />
             <label for="floatingPassword">Password</label>
         </div>
+
         <div class="form-check">
             <input id="userRole" type="radio" class="form-check-input" name="role" value="@Role.Staff"
                        @onchange="RoleChangeHandler" checked="@(_role == Role.Staff)">
                 <label class="form-check-label" for="userRole">@Role.Staff</label>
         </div>
+
         <div class="form-check">
             <input id="adminRole" type="radio" class="form-check-input" name="role" value="@Role.Admin"
                 @onchange="RoleChangeHandler" checked="@(_role == Role.Admin)">
             <label class="form-check-label" for="adminRole">@Role.Admin</label>
         </div>
+
         @if (!string.IsNullOrEmpty(_addUserErrorMessage))
-            {
-                <AlertMessage Type="danger" Message="@_addUserErrorMessage" />
-            }
+        {
+            <AlertMessage Type="danger" Message="@_addUserErrorMessage" />
+        }
         </form>
     </ModalDialog>
 }
 
+@* Deleting user dialog box with inputs *@
 @if (_showDeleteUserDialog)
 {
     <ModalDialog Title="Delete User" OnClose="@OnDeleteUserDialogClose" OkLabel="Confirm">
@@ -77,20 +88,20 @@
 
 @code {
     [CascadingParameter]
-    private GlobalState _globalState { get; set; }
-    private List<Data.User> _users { get; set; }
-    private bool _showAddUserDialog { get; set; }
-    private bool _showDeleteUserDialog { get; set; }
-    private string _addUserErrorMessage { get; set; }
-    private string _deleteUserErrorMessage { get; set; }
+    private GlobalState? _globalState { get; set; }
+    private List<User>? _users { get; set; }
     private User _deleteUser { get; set; }
-    private string _username { get; set; }
-    private string _password { get; set; }
+    private bool _showAddUserDialog { get; set; }
+    private string? _addUserErrorMessage { get; set; }
+    private bool _showDeleteUserDialog { get; set; }
+    private string? _deleteUserErrorMessage { get; set; }
+    private string? _username { get; set; }
+    private string? _password { get; set; }
     private Role _role { get; set; }
 
     protected override void OnInitialized()
     {
-        _users = UserService.GetUser();
+        _users = UserService.GetUserInfo();
     }
 
     private void OpenAddUserDialog()
@@ -100,6 +111,13 @@
         _password = "";
         _role = Role.Staff;
     }
+
+    private void OpenDeleteUserDialog(User user)
+    {
+        _deleteUser = user;
+        _showDeleteUserDialog = true;
+    }
+
     private void OnAddUserDialogClose(bool isCancel)
     {
         if (isCancel)
@@ -112,7 +130,7 @@
             try
             {
                 _addUserErrorMessage = "";
-                _users = UserService.CreateUser(_globalState.CurrentUser.Id, _username, _password, _role);
+                _users = UserService.CreateUser(_globalState.ActiveUser.UserID, _username, _password, _role);
                 _showAddUserDialog = false;
             }
             catch (Exception e)
@@ -127,11 +145,7 @@
         _role = (Role)Enum.Parse(typeof(Role), e.Value.ToString());
     }
 
-    private void OpenDeleteUserDialog(User user)
-    {
-        _deleteUser = user;
-        _showDeleteUserDialog = true;
-    }
+    
     private void OnDeleteUserDialogClose(bool isCancel)
     {
         if (isCancel)
@@ -145,7 +159,7 @@
             try
             {
                 _deleteUserErrorMessage = "";
-                _users = UserService.DeleteUser(_deleteUser.Id);
+                _users = UserService.DeleteUser(_deleteUser.UserID);
                 _showDeleteUserDialog = false;
                 _deleteUser = null;
             }

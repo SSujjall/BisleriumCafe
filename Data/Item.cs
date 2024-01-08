@@ -2,8 +2,8 @@
 {
     public class Item
     {
-        public required string itemName {  get; set; }
-        public float itemPrice { get; set; }
-        public Types itemType { get; set; }
+        public required string ItemName { get; set; }
+        public float ItemPrice { get; set; }
+        public ProductType ItemType { get; set; }
     }
 }

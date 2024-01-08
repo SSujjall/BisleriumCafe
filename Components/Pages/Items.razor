@@ -22,9 +22,9 @@
         @foreach (var item in _items)
         {
             <tr>
-                <td>@item.itemName</td>
-                <td>@item.itemPrice</td>
-                <td>@item.itemType</td>
+                <td>@item.ItemName</td>
+                <td>@item.ItemPrice</td>
+                <td>@item.ItemType</td>
                 <td>
                     <button class="btn btn-sm btn-outline-danger" @onclick="()=>OpenDeleteItemDialog(item)">
                         <i class="fas fa-trash-alt"></i>
@@ -51,14 +51,14 @@
                 <label for="floatingPassword">Price</label>
             </div>
             <div class="form-check">
-                <input id="userRole" type="radio" class="form-check-input" name="role" value="@Types.Coffee"
-                       @onchange="TypeChangeHandler" checked="@(_type == Types.Coffee)">
-                <label class="form-check-label">@Types.Coffee</label>
+                <input id="userRole" type="radio" class="form-check-input" name="role" value="@ProductType.Coffee"
+                       @onchange="TypeChangeHandler" checked="@(_type == ProductType.Coffee)">
+                <label class="form-check-label">@ProductType.Coffee</label>
             </div>
             <div class="form-check">
-                <input id="adminRole" type="radio" class="form-check-input" name="role" value="@Types.Addins"
-                       @onchange="TypeChangeHandler" checked="@(_type == Types.Addins)">
-                <label class="form-check-label">@Types.Addins</label>
+                <input id="adminRole" type="radio" class="form-check-input" name="role" value="@ProductType.Addins"
+                       @onchange="TypeChangeHandler" checked="@(_type == ProductType.Addins)">
+                <label class="form-check-label">@ProductType.Addins</label>
             </div>
             @if (!string.IsNullOrEmpty(_addItemErrorMessage))
             {
@@ -71,7 +71,7 @@
 @if (_showDeleteItemDialog)
 {
     <ModalDialog Title="Delete Item" OnClose="@OnDeleteItemDialogClose" OkLabel="Confirm">
-        <p>Are you sure you want to delete <strong>@_deleteItem.itemName</strong>?</p>
+        <p>Are you sure you want to delete <strong>@_deleteItem.ItemName</strong>?</p>
         @if (!string.IsNullOrEmpty(_deleteItemErrorMessage))
         {
             <AlertMessage Type="danger" Message="@_deleteItemErrorMessage" />
@@ -84,11 +84,11 @@
     <ModalDialog Title="Edit Item" OnClose="@OnEditItemDialogClose" OkLabel="Confirm">
         <form>
             <div class="form-floating mb-3">
-                <input type="text" class="form-control username" @bind="_editItem.itemName" placeholder="Item Name" />
+                <input type="text" class="form-control username" @bind="_editItem.ItemName" placeholder="Item Name" />
                 <label for="floatingInput">Item Name</label>
             </div>
             <div class="form-floating mb-3">
-                <input type="text" class="form-control password" @bind="_editItem.itemPrice" placeholder="Price" />
+                <input type="text" class="form-control password" @bind="_editItem.ItemPrice" placeholder="Price" />
                 <label for="floatingInput">Price</label>
             </div>
             @if (!string.IsNullOrEmpty(_editItemErrorMessage))
@@ -102,7 +102,7 @@
 @code {
     [CascadingParameter]
     private GlobalState _globalState { get; set; }
-    private List<Data.Item> _items { get; set; }
+    private List<Item> _items { get; set; }
     private bool _showAddItemDialog { get; set; }
     private bool _showDeleteItemDialog { get; set; }
     private bool _showEditItemDialog { get; set; }
@@ -113,7 +113,7 @@
     private Item _editItem { get; set; }
     private string _itemName { get; set; }
     private float _price { get; set; }
-    private Types _type { get; set; }
+    private ProductType _type { get; set; }
 
     protected override void OnInitialized()
     {
@@ -141,7 +141,7 @@
             _items = ItemService.GetItems();
             foreach (var item in _items)
             {
-                _editItem.itemPrice = item.itemPrice;
+                _editItem.ItemPrice = item.ItemPrice;
             }
         }
         else
@@ -149,7 +149,7 @@
             try
             {
                 _editItemErrorMessage = "";
-                ItemService.ChangePrice(_editItem.itemName, _editItem.itemPrice);
+                ItemService.UpdatePrice(_editItem.ItemName, _editItem.ItemPrice);
                 _showEditItemDialog = false;
             }
             catch (Exception e)
@@ -161,7 +161,7 @@
 
     private void TypeChangeHandler(ChangeEventArgs e)
     {
-        _type = (Types)Enum.Parse(typeof(Types), e.Value.ToString());
+        _type = (ProductType)Enum.Parse(typeof(ProductType), e.Value.ToString());
     }
 
     private void OnAddItemDialogClose(bool isCancel)
@@ -203,7 +203,7 @@
             try
             {
                 _deleteItemErrorMessage = "";
-                _items = ItemService.DeleteItem(_deleteItem.itemName);
+                _items = ItemService.DeleteItem(_deleteItem.ItemName);
                 _showDeleteItemDialog = false;
                 _deleteItem = null;
             }

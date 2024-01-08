@@ -2,6 +2,94 @@
 @using BisleriumCafe.Components.Layout
 <link href="https://cdn.jsdelivr.net/npm/open-iconic@1.1.1/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
 
-@code {
+<div class="order-body">
 
+    <div class="available-items">
+        <!-- Available Items -->
+        <h4>Available Items</h4>
+        @foreach (var item in availableItems)
+        {
+            <div class="item-card">
+                <h5>@item.ItemName</h5>
+                <p>Price: $@item.ItemPrice</p>
+                <button @onclick="()=>AddToOrder(item)">Add to Order</button>
+            </div>
+        }
+    </div>
+
+    <div class="selected-items">
+        <!-- Selected Items -->
+        <h4>Selected Items</h4>
+        @foreach (var selectedItem in selectedItems)
+        {
+            <div class="selected-item">
+                <span>@selectedItem.Item.ItemName - $@(selectedItem.Item.ItemPrice * selectedItem.Quantity)</span>
+                <div>
+                    <button @onclick="()=>DecreaseQuantity(selectedItem)">-</button>
+                    <span>@selectedItem.Quantity</span>
+                    <button @onclick="()=>IncreaseQuantity(selectedItem)">+</button>
+                </div>
+            </div>
+        }
+        <div>
+            <label>Membership Number:</label>
+            <input type="text" @bind="membershipNumber" />
+            <button @onclick="PlaceOrder" style="margin-top: 20px">Place Order</button>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private List<Item> availableItems;
+    private List<SelectedOrderItem> selectedItems;
+    private string membershipNumber = "";
+
+    protected override void OnInitialized()
+    {
+        //Load available items from ItemService
+        availableItems = ItemService.GetItems();
+        selectedItems = new List<SelectedOrderItem>();
+    }
+
+    private void AddToOrder(Item item)
+    {
+        var existingItem = selectedItems.FirstOrDefault(x => x.Item.ItemName == item.ItemName);
+        if (existingItem != null)
+        {
+            existingItem.Quantity++;
+        }
+        else
+        {
+            selectedItems.Add(new SelectedOrderItem { Item = item, Quantity = 1 });
+        }
+    }
+
+    private void IncreaseQuantity(SelectedOrderItem selectedItem)
+    {
+        selectedItem.Quantity++;
+    }
+
+    private void DecreaseQuantity(SelectedOrderItem selectedItem)
+    {
+        if (selectedItem.Quantity > 1)
+        {
+            selectedItem.Quantity--;
+        }
+        else
+        {
+            selectedItems.Remove(selectedItem);
+        }
+    }
+
+    private void PlaceOrder()
+    {
+
+    }
+
+    public class SelectedOrderItem
+    {
+        public Item Item { get; set; }
+        public int Quantity { get; set; }
+    }
 }

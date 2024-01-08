@@ -2,9 +2,9 @@
 {
     internal class UserTransaction
     {
-        public long UserId { get; set; }
-        public DayOfWeek SalesDay { get; set; }
+        public long UserID { get; set; }
+        public DayOfWeek DayOfSale { get; set; }
         public int TransactionCount { get; set; }
-        public DateTime SaleDate { get; set; }
+        public DateTime DateOfSale { get; set; }
     }
 }

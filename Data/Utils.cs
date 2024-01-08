@@ -4,9 +4,11 @@ namespace BisleriumCafe.Data
 {
     public static class Utils
     {
-        private const char separator = ':';
+        //Just a variable used as a separator 
+        private const char _separator = ':';
 
-        public static string HashSecret(string input)
+        //Hashing
+        public static string HashSecretKey(string input)
         {
             var saltSize = 16;
             var iterations = 100_000;
@@ -16,7 +18,7 @@ namespace BisleriumCafe.Data
             byte[] hash = Rfc2898DeriveBytes.Pbkdf2(input, salt, iterations, algorithm, keySize);
 
             return string.Join(
-                separator,
+                _separator,
                 Convert.ToHexString(hash),
                 Convert.ToHexString(salt),
                 iterations,
@@ -24,9 +26,10 @@ namespace BisleriumCafe.Data
             );
         }
 
-        public static bool VerifyHash(string input, string hashString)
+        //Verifying hash password for authentication
+        public static bool HashVerification(string input, string hashString)
         {
-            string[] segments = hashString.Split(separator);
+            string[] segments = hashString.Split(_separator);
             byte[] hash = Convert.FromHexString(segments[0]);
             byte[] salt = Convert.FromHexString(segments[1]);
             int iterations = int.Parse(segments[2]);
@@ -42,7 +45,8 @@ namespace BisleriumCafe.Data
             return CryptographicOperations.FixedTimeEquals(inputHash, hash);
         }
 
-        public static string GetAppDirectoryPath()
+        //For getting the folder directory where the app's data will be saved
+        public static string GetAppDirectory()
         {
             return Path.Combine(
                 FileSystem.AppDataDirectory,
@@ -50,19 +54,22 @@ namespace BisleriumCafe.Data
             );
         }
 
-        public static string GetUsersFilePath()
+        //Getting users.json file
+        public static string GetUsersPath()
         {
-            return Path.Combine(GetAppDirectoryPath(), "users.json");
+            return Path.Combine(GetAppDirectory(), "users.json");
         }
 
-        public static string GetItemsFilePath()
+        //Getting items.json file
+        public static string GetItemsPath()
         {
-            return Path.Combine(GetAppDirectoryPath(), "items.json");
+            return Path.Combine(GetAppDirectory(), "items.json");
         }
 
-        public static string GetOrdersFilePath()
+        ////Getting orders.json file
+        public static string GetOrdersPath()
         {
-            return Path.Combine(GetAppDirectoryPath(), "orders.json");
+            return Path.Combine(GetAppDirectory(), "orders.json");
         }
     }
 }

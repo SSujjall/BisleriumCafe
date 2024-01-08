@@ -7,7 +7,7 @@
 
     protected override void OnInitialized()
     {
-        if (_globalState.CurrentUser == null)
+        if (_globalState.ActiveUser == null)
         {
             NavManager.NavigateTo("/login");
         }

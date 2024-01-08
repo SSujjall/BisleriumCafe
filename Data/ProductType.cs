@@ -1,6 +1,6 @@
 ﻿namespace BisleriumCafe.Data
 {
-    public enum Types
+    public enum ProductType
     {
         Coffee,
         Addins

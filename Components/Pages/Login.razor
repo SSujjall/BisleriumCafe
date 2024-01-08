@@ -48,11 +48,11 @@
     {
         try
         {
-            var user = UserService.LogIn(UserService.seedUsername, UserService.seedPassword);
+            var user = UserService.Login(UserService.seedUsername, UserService.seedPassword);
         }
         catch { }
 
-        _globalState.CurrentUser = null;
+        _globalState.ActiveUser = null;
         _errorMessage = "";
     }
 
@@ -61,8 +61,8 @@
         try
         {
             _errorMessage = "";
-            _globalState.CurrentUser = UserService.LogIn(_username, _password);
-            if (_globalState.CurrentUser != null)
+            _globalState.ActiveUser = UserService.Login(_username, _password);
+            if (_globalState.ActiveUser != null)
             {
                 NavManager.NavigateTo("/");
             }

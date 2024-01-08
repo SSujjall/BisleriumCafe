@@ -4,9 +4,10 @@ namespace BisleriumCafe.Data
 {
     public static class ItemService
     {
+        //
         public static void SaveItem(List<Item> items)
         {
-            string itemFilePath = Utils.GetItemsFilePath();
+            string itemFilePath = Utils.GetItemsPath();
 
             var json = JsonSerializer.Serialize(items);
             File.WriteAllText(itemFilePath, json);
@@ -14,7 +15,7 @@ namespace BisleriumCafe.Data
 
         public static List<Item> GetItems()
         {
-            string itemFilePath = Utils.GetItemsFilePath();
+            string itemFilePath = Utils.GetItemsPath();
 
             if (!File.Exists(itemFilePath))
             {
@@ -25,10 +26,10 @@ namespace BisleriumCafe.Data
             return items;
         }
 
-        public static List<Item> CreateItem(string iName, float iPrice, Types iType)
+        public static List<Item> CreateItem(string iName, float iPrice, ProductType iType)
         {
             List<Item> items = GetItems();
-            bool itemExist = items.Any(x => x.itemName == iName);
+            bool itemExist = items.Any(x => x.ItemName == iName);
 
             if (itemExist)
             {
@@ -37,9 +38,9 @@ namespace BisleriumCafe.Data
             items.Add(
                 new Item
                 {
-                    itemName = iName,
-                    itemPrice = iPrice,
-                    itemType = iType
+                    ItemName = iName,
+                    ItemPrice = iPrice,
+                    ItemType = iType
                 }
                 );
 
@@ -47,17 +48,17 @@ namespace BisleriumCafe.Data
             return items; //mathi save gareko items bolako
         }
 
-        public static List<Item> ChangePrice(string iName, float iPrice)
+        public static List<Item> UpdatePrice(string iName, float iPrice)
         {
             List<Item> items = GetItems();
 
-            Item item = items.FirstOrDefault(x => x.itemName == iName);
+            Item item = items.FirstOrDefault(x => x.ItemName == iName);
 
-            if(item == null)
+            if (item == null)
             {
                 throw new Exception("Item Not Found!");
             }
-            item.itemPrice = iPrice;
+            item.ItemPrice = iPrice;
             SaveItem(items);
             return items;
         }
@@ -65,12 +66,13 @@ namespace BisleriumCafe.Data
         public static List<Item> DeleteItem(string iName)
         {
             List<Item> items = GetItems();
-            Item item = items.FirstOrDefault( x => x.itemName == iName);
+            Item item = items.FirstOrDefault(x => x.ItemName == iName);
 
-            if(item == null)
+            if (item == null)
             {
                 throw new Exception("Item Not Found!");
             }
+
             items.Remove(item);
             SaveItem(items);
             return items;

@@ -6,7 +6,7 @@ namespace BisleriumCafe.Data
     {
         public static List<Transaction> GetTransaction()
         {
-            string itemFilePath = Utils.GetOrdersFilePath();
+            string itemFilePath = Utils.GetOrdersPath();
 
             if (!File.Exists(itemFilePath))
             {
@@ -20,7 +20,7 @@ namespace BisleriumCafe.Data
 
         public static void SaveTransaction(List<Transaction> transaction)
         {
-            string itemFilePath = Utils.GetOrdersFilePath();
+            string itemFilePath = Utils.GetOrdersPath();
 
             var json = JsonSerializer.Serialize(transaction);
             File.WriteAllText(itemFilePath, json);
@@ -49,7 +49,7 @@ namespace BisleriumCafe.Data
 
         public static List<UserTransaction> GetTransactionByUserID (long userId)
         {
-            string itemFilePath = Utils.GetOrdersFilePath();
+            string itemFilePath = Utils.GetOrdersPath();
 
             if (!File.Exists(itemFilePath))
             {
@@ -69,9 +69,9 @@ namespace BisleriumCafe.Data
                 data.Add(
                     new UserTransaction()
                     {
-                        UserId = transaction.UserID,
-                        SaleDate = transaction.SalesDate,
-                        SalesDay = transaction.Day,
+                        UserID = transaction.UserID,
+                        DateOfSale = transaction.SalesDate,
+                        DayOfSale = transaction.Day,
                         TransactionCount = dataCount
                     });
             }
