@@ -1,4 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-..." crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/open-iconic@1.1.1/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
+
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Bislerium Coffee</a>
     </div>
@@ -6,30 +10,45 @@
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable">
     <nav class="flex-column">
         <div class="nav-item px-3"><h5 class="text-light"><strong>@Username</strong></h5></div>
         @if (UserRole == Role.Admin)
         {
+            <!-- &nbsp; is for spacing between the icon and the text -->
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="users">
-                    <span class="oi oi-person" /> Users
+                    <span class="oi oi-person" /> &nbsp; Users 
                 </NavLink>
             </div>
+
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="items">
-                    <span class="oi oi-person" /> Items
+                    <span class="oi oi-box" /> &nbsp; Items
                 </NavLink>
             </div>
         }
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="order">
-                <span class="oi oi-list-rich" /> Order
+                <span class="oi oi-cart" /> &nbsp; Order
             </NavLink>
         </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="transaction">
+                <span class="oi oi-document" /> &nbsp; Transactions
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="pdf">
+                <span class="oi oi-document" /> &nbsp; Generate PDF
+            </NavLink>
+        </div>
+
         <div class="nav-item px-3">
             <NavLink class="nav-link text-danger" role="button" @onclick="LogoutHandler">
-                <span class="oi oi-account-logout" /> Logout
+                <span class="oi oi-account-logout" /> &nbsp; Logout
             </NavLink>
         </div>
     </nav>
