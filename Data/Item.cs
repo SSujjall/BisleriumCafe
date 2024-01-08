@@ -4,5 +4,6 @@
     {
         public required string itemName {  get; set; }
         public float itemPrice { get; set; }
+        public Types itemType { get; set; }
     }
 }

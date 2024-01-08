@@ -2,20 +2,21 @@
 @using BisleriumCafe.Components.Layout
 @inject NavigationManager NavManager
 
-<div class="login-body">
-    <div class="form-login">
-        <form class="text-center" @onsubmit="LoginHandler">
+<div class="login-body text-center">
+    <div class="form-login d-inline-block">
+        <form class="main-form" @onsubmit="LoginHandler">
             <img class="mb-4" src="/appicon.png" alt="" height="72">
-            <h1 class="h3 mb-3 fw-normal">Please Login</h1>
+            <h1 class="h3 mb-3 fw-normal">Login</h1>
             @if (_showDefaultCredentials)
             {
                 <div class="alert alert-info" role="alert">
-                    Username: <strong>@UserService.seedUsername</strong><br/>
+                    Username: <strong>@UserService.seedUsername</strong>
+                    <br/>
                     Password: <strong>@UserService.seedPassword</strong>
                 </div>
             }
 
-            <div class="form-floating">
+            <div class="form-floating mb-3">
                 <input type="text" class="form-control username" @bind="_username" placeholder="Username" />
                 <label for="floatingInput">Username</label>
             </div>
@@ -27,12 +28,13 @@
             {
                 <AlertMessage Type="danger" Message="@_errorMessage" />
             }
-            <button class="w-100 btn btn-lg btn-primary" type="submit">
+            <button class="w-100 btn btn-lg btn-primary black-btn" type="submit">
                 <span class="oi oi-account-login"></span> Login
             </button>
         </form>
     </div>
 </div>
+
 
 @code {
     [CascadingParameter]

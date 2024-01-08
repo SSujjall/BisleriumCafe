@@ -1,0 +1,16 @@
+﻿.btn-success:hover {
+    background-color: darkgreen;
+}
+
+.btn-success:focus,
+.btn-success:active {
+    outline: none;
+    box-shadow: none;
+}
+
+.form-control:focus,
+.form-control:active {
+    border-color: grey;
+    box-shadow: none;
+    /* Additional styling if needed */
+}

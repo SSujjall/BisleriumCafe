@@ -25,7 +25,7 @@ namespace BisleriumCafe.Data
             return items;
         }
 
-        public static List<Item> CreateItem(string iName, float iPrice)
+        public static List<Item> CreateItem(string iName, float iPrice, Types iType)
         {
             List<Item> items = GetItems();
             bool itemExist = items.Any(x => x.itemName == iName);
@@ -38,7 +38,8 @@ namespace BisleriumCafe.Data
                 new Item
                 {
                     itemName = iName,
-                    itemPrice = iPrice
+                    itemPrice = iPrice,
+                    itemType = iType
                 }
                 );
 

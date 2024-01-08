@@ -1,0 +1,43 @@
+﻿.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 95vh; 
+}
+
+.main-form {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    width: 400px; /* Increase width of the form */
+    max-width: 80%; /* Set a maximum width */
+    margin: 0 auto;
+}
+
+.form-control:focus {
+    border-color: #ced4da;
+    outline: none;
+    box-shadow: none;
+}
+
+/* Remove outline for the button */
+.black-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.form-floating {
+    margin-bottom: 15px; /* Adjust the margin between textfields */
+}
+
+.black-btn {
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #000;
+}
+
+    .black-btn:hover {
+        background-color: #222;
+        border: 1px solid #222;
+    }
