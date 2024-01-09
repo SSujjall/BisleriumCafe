@@ -1,94 +1,231 @@
 ﻿@page "/order"
-@using BisleriumCafe.Components.Layout
 
-<div class="order-body">
+<div class="main-container">
+    <div class="left-container">
+        <div class="filter-buttons">
+            <button @onclick="() => FilterItems(ProductType.Coffee)">Products</button>
+            <button @onclick="() => FilterItems(ProductType.Addins)" disabled="@(!IsProductAdded)">Add-Ins</button>
+        </div>
 
-    <div class="available-items">
-        <!-- Available Items -->
-        <h4>Available Items</h4>
-        @foreach (var item in availableItems)
-        {
-            <div class="item-card">
-                <h5>@item.ItemName</h5>
-                <p>Price: $@item.ItemPrice</p>
-                <button @onclick="()=>AddToOrder(item)">Add to Order</button>
-            </div>
-        }
-    </div>
-
-    <div class="selected-items">
-        <!-- Selected Items -->
-        <h4>Selected Items</h4>
-        @foreach (var selectedItem in selectedItems)
-        {
-            <div class="selected-item">
-                <span>@selectedItem.Item.ItemName - $@(selectedItem.Item.ItemPrice * selectedItem.Quantity)</span>
-                <div>
-                    <button @onclick="()=>DecreaseQuantity(selectedItem)">-</button>
-                    <span>@selectedItem.Quantity</span>
-                    <button @onclick="()=>IncreaseQuantity(selectedItem)">+</button>
+        <div class="item-cards">
+            @foreach (var item in filteredItems)
+            {
+                <div class="card">
+                    <div>@item.ProductName</div>
+                    <div>Rs.@item.ProductPrice</div>
+                    <button @onclick="() => AddToSelectedItems(item)">Add</button>
                 </div>
-            </div>
-        }
-        <div>
-            <label>Membership Number:</label>
-            <input type="text" @bind="membershipNumber" />
-            <button @onclick="PlaceOrder" style="margin-top: 20px">Place Order</button>
+            }
         </div>
     </div>
 
+    <div class="right-container">
+        <h3>Selected Items</h3>
+        <div class="selected-items">
+            @foreach (var selectedItem in selectedItems)
+            {
+                <div>
+                    @selectedItem.Product.ProductName - Rs.@selectedItem.GetTotalPrice()
+                    <button @onclick="() => DecreaseQuantity(selectedItem)">-</button>
+                    @selectedItem.Quantity
+                    <button @onclick="() => IncreaseQuantity(selectedItem)">+</button>
+                    <button @onclick="() => RemoveSelectedItem(selectedItem)">X</button>
+                </div>
+            }
+        </div>
+
+        <div>
+            <input type="number" placeholder="Enter membership ID" @bind="_memberID" />
+            <button @onclick="CheckOrder">Check Order</button>
+        </div>
+        @if (_showOrderDialog)
+        {
+            <div class="order-dialog-overlay">
+                <h4>Order Details</h4>
+                <p>Membership ID: @_memberID</p>
+                <p>Selected Items:</p>
+                <ul>
+                    @foreach (var selectedItem in selectedItems)
+                    {
+                        <li>@selectedItem.Product.ProductName - $@selectedItem.GetTotalPrice()</li>
+                    }
+                </ul>
+                <p>Gross Total: Rs.@CalculateGrossTotal()</p>
+                <p>Discount Amount: Rs.@CalculateDiscountAmount()</p>
+                <p>Net Total: Rs.@CalculateNetTotal()</p>
+                <button @onclick="PlaceOrder">Place Order</button>
+                <button @onclick="CancelOrder">Cancel</button>
+            </div>
+        }
+    </div>
 </div>
 
+
+
 @code {
-    private List<Item> availableItems;
-    private List<SelectedOrderItem> selectedItems;
-    private string membershipNumber = "";
+    private long _memberID { get; set; }
+    private bool _showOrderDialog = false;
+    private bool IsProductAdded => selectedItems.Any();
+    List<Product> items = ProductService.GetProducts();
+    List<Product> filteredItems = new List<Product>();
+    List<SelectedItem> selectedItems = new List<SelectedItem>();
 
     protected override void OnInitialized()
     {
-        //Load available items from ItemService
-        availableItems = ItemService.GetItems();
-        selectedItems = new List<SelectedOrderItem>();
+        FilterItems(ProductType.Coffee);
     }
 
-    private void AddToOrder(Item item)
+    void FilterItems(ProductType itemType)
     {
-        var existingItem = selectedItems.FirstOrDefault(x => x.Item.ItemName == item.ItemName);
-        if (existingItem != null)
+        filteredItems = items.Where(i => i.ProductType == itemType).ToList();
+    }
+
+    void AddToSelectedItems(Product selectedItem)
+    {
+        var existingSelectedItem = selectedItems.FirstOrDefault(i => i.Product.ProductName == selectedItem.ProductName);
+
+        if (existingSelectedItem != null)
         {
-            existingItem.Quantity++;
+            existingSelectedItem.Quantity++;
         }
         else
         {
-            selectedItems.Add(new SelectedOrderItem { Item = item, Quantity = 1 });
+            var newSelectedItem = new SelectedItem
+                {
+                    Product = selectedItem,
+                    Quantity = 1
+                };
+            selectedItems.Add(newSelectedItem);
         }
+
+        StateHasChanged();
     }
 
-    private void IncreaseQuantity(SelectedOrderItem selectedItem)
+    void IncreaseQuantity(SelectedItem selectedItem)
     {
         selectedItem.Quantity++;
     }
 
-    private void DecreaseQuantity(SelectedOrderItem selectedItem)
+    void DecreaseQuantity(SelectedItem selectedItem)
     {
         if (selectedItem.Quantity > 1)
         {
             selectedItem.Quantity--;
         }
-        else
+    }
+
+    void RemoveSelectedItem(SelectedItem selectedItem)
+    {
+        selectedItems.Remove(selectedItem);
+        StateHasChanged();
+    }
+
+    float getDiscount()
+    {
+        int transactionCount = OrderService.GetOrderByUserId(_memberID)
+            .Select(transaction => transaction.SalesDate.Date)
+            .Distinct()
+            .Count(date => (DateTime.Now - date).Days <= 30);
+
+        float discountPercentage = (transactionCount > 4) ? 10 : 0;
+        return discountPercentage;
+    }
+
+
+    void CheckOrder()
+    {
+        // Check if the membership ID already exists in previous transactions
+        bool isExistingMember = OrderService.GetOrderByUserId(_memberID).Any();
+
+        // Check the total count of previous transactions in the past 30 days
+        // Check the total count of unique days with previous transactions in the past 30 days
+        int transactionCount = OrderService.GetOrderByUserId(_memberID)
+            .Select(transaction => transaction.SalesDate.Date)
+            .Distinct()
+            .Count(date => (DateTime.Now - date).Days <= 30);
+
+
+        // Check if the transaction count is more than 22, and set the discount percentage accordingly
+        float discountPercentage = (transactionCount > 4) ? 10 : 0;
+
+        // Calculate the net total amount with discount applied
+        float netTotal = CalculateNetTotal();
+
+        // Apply the discount to the net total
+        float discountedNetTotal = netTotal * (1 - discountPercentage / 100);
+
+        // Update the net total in the selected items
+        UpdateNetTotalInSelectedItems(discountedNetTotal);
+
+        // Show the order dialog
+        _showOrderDialog = true;
+    }
+
+    void UpdateNetTotalInSelectedItems(float discountedNetTotal)
+    {
+        foreach (var selectedItem in selectedItems)
         {
-            selectedItems.Remove(selectedItem);
+            // Set the discounted net total to the item
+            selectedItem.NetTotal = discountedNetTotal;
         }
     }
 
-    private void PlaceOrder()
+    void PlaceOrder()
     {
+        var transactionData = new Data.Order
+            {
+                TransactionID = Guid.NewGuid(),
+                Products = selectedItems.Select<SelectedItem, Product>(si => new Product
+                {
+                    ProductName = si.Product.ProductName,
+                    ProductPrice = si.Product.ProductPrice,
+                }).ToList(),
+                MemberID = _memberID,
+                DateOfSale = DateTime.Now,
+                TotalPrice = CalculateNetTotal(),
+            };
 
+            List<Data.Order> transactions = OrderService.GetOrderDetails();
+
+        transactions.Add(transactionData);
+
+        OrderService.SaveTransaction(transactions);
+
+        selectedItems.Clear();
+        _showOrderDialog = false;
     }
 
-    public class SelectedOrderItem
+
+
+    void CancelOrder()
     {
-        public Item Item { get; set; }
+        _showOrderDialog = false;
+    }
+
+    float CalculateGrossTotal()
+    {
+        return selectedItems.Sum(si => si.GetTotalPrice());
+    }
+
+    float CalculateDiscountAmount()
+    {
+        return (getDiscount()/100) * CalculateGrossTotal();
+    }
+
+    float CalculateNetTotal()
+    {
+        return CalculateGrossTotal() - CalculateDiscountAmount();
+    }
+
+    public class SelectedItem
+    {
+        public Product Product { get; set; }
         public int Quantity { get; set; }
+        public float NetTotal { get; set; }
+
+        public float GetTotalPrice()
+        {
+            return Product.ProductPrice * Quantity;
+        }
     }
 }

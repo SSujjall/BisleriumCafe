@@ -67,9 +67,14 @@ namespace BisleriumCafe.Data
         }
 
         ////Getting orders.json file
-        public static string GetOrdersPath()
+        public static string GetTransactionPath()
         {
             return Path.Combine(GetAppDirectory(), "orders.json");
+        }
+
+        public static string GetMemberPath()
+        {
+            return Path.Combine(GetAppDirectory(), "members.json");
         }
     }
 }

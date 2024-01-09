@@ -1,0 +1,44 @@
+﻿@page "/transactionRecord"
+
+<h3>All Orders</h3>
+
+@if (transactions != null && transactions.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Items</th>
+                <th>Member ID</th>
+                <th>Sales Date</th>
+                <th>Order Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in transactions)
+            {
+                <tr>
+                    <td>@transaction.TransactionID</td>
+                    <td>@transaction.Products</td>
+                    <td>@transaction.MemberID</td>
+                    <td>@transaction.DateOfSale.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@transaction.TotalPrice</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No orders available.</p>
+}
+
+@code {
+    List<Data.Order> transactions;
+
+    protected override void OnInitialized()
+    {
+        // Call the GetTransaction method from your TransactionService to fetch the transactions
+        transactions = OrderService.GetOrderDetails();
+    }
+}
